@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { AppShell, ViewTab } from './components/layout/AppShell';
+import { AppShell } from './components/layout/AppShell';
+import type { ViewTab } from './components/layout/AppShell';
 import { HomeView } from './views/HomeView';
 import { BoardView } from './views/BoardView';
 import { ReviewView } from './views/ReviewView';
