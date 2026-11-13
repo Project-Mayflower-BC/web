@@ -1,10 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
 import { STANDARD_BOARD_HEXES } from '../fixtures/boardTopology';
 import { SAMPLE_MATCH_TURNS } from '../fixtures/sampleMatch';
-import { axialToPixel, getHexCornerPoints, buildVertexMap } from '../utils/coordinates';
+import { axialToPixel, getHexCornerPoints, buildVertexMap, buildEdgeList } from '../utils/coordinates';
 import type { ResourceType, PlayerColor } from '../types/game';
 import { TimelineDock } from '../components/layout/TimelineDock';
-import { buildVertexMap, buildEdgeList } from '../utils/coordinates';
 
 const HEX_SIZE = 54;
 
