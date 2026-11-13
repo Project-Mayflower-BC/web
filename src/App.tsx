@@ -15,7 +15,8 @@ export default function App() {
       {activeTab === 'board' && (
         <BoardView 
           currentTurn={currentTurn} 
-          onTurnChange={setCurrentTurn} 
+          onTurnChange={setCurrentTurn}
+          onOpenReview={() => setActiveTab('review')} 
         />
       )}
       {activeTab === 'review' && (
