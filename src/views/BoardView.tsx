@@ -1,4 +1,5 @@
-import { useMemo, useEffect, useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { OPENING_CANDIDATES_TURN_0, type CandidatePlacement } from '../fixtures/sampleMatch';
 import { STANDARD_BOARD_HEXES } from '../fixtures/boardTopology';
 import { SAMPLE_MATCH_TURNS } from '../fixtures/sampleMatch';
 import { 
@@ -40,6 +41,8 @@ export function BoardView({ currentTurn, onTurnChange }: BoardViewProps) {
 
   const vertexMap = useMemo(() => buildVertexMap(STANDARD_BOARD_HEXES, HEX_SIZE), []);
   const edgeList = useMemo(() => buildEdgeList(STANDARD_BOARD_HEXES, HEX_SIZE, vertexMap), [vertexMap]);
+
+  const [selectedCandidate, setSelectedCandidate] = useState<CandidatePlacement | null>(null);
 
   // Autoplay ticker updates shared state
   useEffect(() => {
@@ -218,6 +221,57 @@ export function BoardView({ currentTurn, onTurnChange }: BoardViewProps) {
                 );
               })}
             </g>
+
+            {currentTurn === 0 && (
+              <g id="candidate-overlay-layer">
+                {OPENING_CANDIDATES_TURN_0.map((cand) => {
+                  const pt = vertexMap.get(cand.vertexId);
+                  if (!pt) return null;
+                  const isSelected = selectedCandidate?.vertexId === cand.vertexId;
+
+                  const ringColor =
+                    cand.grade === 'best'
+                      ? '#10b981' // Emerald
+                      : cand.grade === 'good'
+                      ? '#06b6d4' // Cyan
+                      : '#f59e0b'; // Amber
+
+                  return (
+                    <g
+                      key={cand.vertexId}
+                      className="cursor-pointer transition-transform hover:scale-110"
+                      onClick={() => setSelectedCandidate(cand)}
+                    >
+                      {/* Animated/Glowing outer pulse ring */}
+                      <circle
+                        cx={pt.x}
+                        cy={pt.y}
+                        r={isSelected ? 16 : 13}
+                        fill="none"
+                        stroke={ringColor}
+                        strokeWidth={isSelected ? 3 : 2}
+                        strokeDasharray={cand.isAboutEqual ? '3 2' : undefined}
+                        className="animate-pulse"
+                      />
+
+                      {/* Center badge with Rank # */}
+                      <circle cx={pt.x} cy={pt.y} r={9} fill="#0f172a" stroke={ringColor} strokeWidth="1.5" />
+                      <text
+                        x={pt.x}
+                        y={pt.y + 0.5}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fontSize="10"
+                        fontWeight="bold"
+                        fill={ringColor}
+                      >
+                        #{cand.rank}
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+            )}
           </svg>
         </div>
 
@@ -251,6 +305,53 @@ export function BoardView({ currentTurn, onTurnChange }: BoardViewProps) {
             })}
           </div>
 
+          {currentTurn === 0 && (
+            <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-3">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
+                  Opening Candidates (UI-04)
+                </h3>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
+                  Turn 0 Only
+                </span>
+              </div>
+
+              {selectedCandidate ? (
+                <div className="space-y-2 p-3 bg-slate-950/70 border border-slate-800 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-white">
+                      Rank #{selectedCandidate.rank} • Vertex {selectedCandidate.vertexId}
+                    </span>
+                    <span
+                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                        selectedCandidate.grade === 'best'
+                          ? 'bg-emerald-500/20 text-emerald-300'
+                          : selectedCandidate.grade === 'good'
+                          ? 'bg-cyan-500/20 text-cyan-300'
+                          : 'bg-amber-500/20 text-amber-300'
+                      }`}
+                    >
+                      {selectedCandidate.isAboutEqual ? '≈ About Equal' : selectedCandidate.grade.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="text-sm font-mono text-cyan-300">
+                    {(selectedCandidate.winProbability * 100).toFixed(1)}% Win Rate (
+                    {selectedCandidate.deltaEV >= 0 ? '+' : ''}
+                    {(selectedCandidate.deltaEV * 100).toFixed(1)}% EV)
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    {selectedCandidate.annotation}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-slate-400 italic">
+                  Click any ranked node (#1, #2, #3) on the board to inspect opening placement EV tradeoffs.
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* 3. Move Quality Card (if present) */}
           {activeTurn.evaluation && (
             <div className="p-4 bg-emerald-950/20 border border-emerald-500/40 rounded-xl space-y-2">
               <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">

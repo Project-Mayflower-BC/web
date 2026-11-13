@@ -131,3 +131,41 @@ export const SAMPLE_MATCH_TURNS: TurnState[] = [
     ],
   },
 ];
+
+export interface CandidatePlacement {
+  vertexId: number;
+  rank: number;
+  winProbability: number;
+  deltaEV: number;
+  grade: 'best' | 'good' | 'inaccuracy';
+  isAboutEqual?: boolean;
+  annotation: string;
+}
+
+export const OPENING_CANDIDATES_TURN_0: CandidatePlacement[] = [
+  {
+    vertexId: 10,
+    rank: 1,
+    winProbability: 0.342,
+    deltaEV: 0.042,
+    grade: 'best',
+    annotation: '8-Ore / 5-Wheat / 10-Wood: Optimal ore-wheat tempo',
+  },
+  {
+    vertexId: 18,
+    rank: 2,
+    winProbability: 0.338,
+    deltaEV: -0.004,
+    grade: 'good',
+    isAboutEqual: true,
+    annotation: '6-Wheat / 9-Wood / 4-Sheep: High yield, about equal EV',
+  },
+  {
+    vertexId: 27,
+    rank: 3,
+    winProbability: 0.281,
+    deltaEV: -0.061,
+    grade: 'inaccuracy',
+    annotation: '11-Wood / 3-Brick / 4-Wheat: Starves early ore generation',
+  },
+];
