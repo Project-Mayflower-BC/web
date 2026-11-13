@@ -10,7 +10,6 @@ import {
 import type { ResourceType, PlayerColor } from '../types/game';
 import { TimelineDock } from '../components/layout/TimelineDock';
 
-// Scaled up ~1.75x–2x from 44 for large high-resolution presentation
 const HEX_SIZE = 76;
 
 const RESOURCE_THEMES: Record<ResourceType, { fill: string; stroke: string; label: string }> = {
@@ -58,12 +57,12 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
   return (
     <div className="w-full space-y-4">
       {/* Top Header Strip */}
-      <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+      <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
         <div>
           <h2 className="text-lg font-bold text-white tracking-tight">The Board Viewer</h2>
           <p className="text-xs text-slate-400">Current game state replay & interactive placement inspection</p>
         </div>
-        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">
+        <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-400">
           Standard 4-Player Match
         </span>
       </div>
@@ -73,7 +72,7 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
         className="w-full"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) 360px',
+          gridTemplateColumns: 'minmax(0, 1fr) 400px',
           gap: '24px',
           alignItems: 'start'
         }}
@@ -290,7 +289,7 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
             </svg>
           </div>
 
-          {/* Under-Board Action Triggers & Scrubber (Matched to Expanded Width) */}
+          {/* Under-Board Action Triggers & Scrubber */}
           <div className="w-full space-y-2" style={{ maxWidth: '820px' }}>
             <div className="flex items-center gap-2">
               <button
@@ -319,62 +318,125 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
 
         {/* RIGHT COLUMN: "Standard Game Info" Panel */}
         <div 
-          className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-4"
-          style={{ width: '360px' }}
+          className="bg-slate-900/80 border border-slate-800 rounded-2xl shadow-xl space-y-4"
+          style={{ 
+            width: '400px', 
+            minWidth: '400px', 
+            padding: '20px', 
+            boxSizing: 'border-box' 
+          }}
         >
-          <div className="border-b border-slate-800 pb-2.5 flex justify-between items-center">
+          {/* Section Header */}
+          <div 
+            className="border-b border-slate-800 pb-3"
+            style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              width: '100%' 
+            }}
+          >
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
               Standard Game Info
             </h3>
-            <span className="text-xs font-mono text-cyan-400">
+            <span 
+              className="text-xs font-mono font-semibold rounded bg-slate-950 text-cyan-400 border border-slate-800"
+              style={{ padding: '2px 8px' }}
+            >
               Turn {activeTurn.turnIndex}
             </span>
           </div>
 
-          {/* Current Action */}
-          <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-xl space-y-1">
-            <div className="flex justify-between items-center text-[11px]">
-              <span className="text-slate-400 font-medium">Current Action</span>
-              <span className="font-mono text-amber-300">
-                {activeTurn.diceRoll ? `Roll: [${activeTurn.diceRoll[0]}][${activeTurn.diceRoll[1]}] = ${activeTurn.diceRoll[0] + activeTurn.diceRoll[1]}` : 'Setup'}
+          {/* Current Action Card */}
+          <div 
+            className="bg-slate-950/70 border border-slate-800 rounded-xl space-y-2"
+            style={{ padding: '14px' }}
+          >
+            <div 
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                gap: '10px',
+                width: '100%'
+              }}
+            >
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Current Action
+              </span>
+              <span 
+                className="text-xs font-mono font-semibold rounded bg-slate-900 border border-slate-800 text-amber-300"
+                style={{ padding: '2px 8px', whiteSpace: 'nowrap' }}
+              >
+                {activeTurn.diceRoll 
+                  ? `Roll: [${activeTurn.diceRoll[0]}] + [${activeTurn.diceRoll[1]}] = ${activeTurn.diceRoll[0] + activeTurn.diceRoll[1]}` 
+                  : 'Setup Phase'}
               </span>
             </div>
-            <p className="text-xs text-white font-medium leading-snug">
+            <p className="text-xs text-slate-200 font-medium leading-relaxed pt-1">
               {activeTurn.actionDescription}
             </p>
           </div>
 
-          {/* Standings */}
+          {/* Players & Standings */}
           <div className="space-y-2">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block">
               Players & Cards
             </span>
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {activeTurn.playerSummaries.map((p) => {
                 const isActive = activeTurn.activeColor === p.color;
                 const style = PLAYER_COLORS[p.color];
                 return (
                   <div
                     key={p.seatId}
-                    className={`p-2.5 border rounded-lg flex justify-between items-center transition ${
-                      isActive ? 'border-cyan-500 bg-cyan-950/20' : 'border-slate-800/80 bg-slate-950/40'
+                    className={`border rounded-xl transition ${
+                      isActive 
+                        ? 'border-cyan-500/60 bg-cyan-950/20 shadow-sm' 
+                        : 'border-slate-800/80 bg-slate-950/50'
                     }`}
+                    style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center', 
+                      padding: '10px 14px',
+                      gap: '12px',
+                      width: '100%',
+                      boxSizing: 'border-box'
+                    }}
                   >
-                    <div className="flex items-center gap-2">
+                    {/* Left: Color dot, Name, Active Badge */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <span
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: style.fill }}
+                        className="rounded-full shadow-sm"
+                        style={{ 
+                          width: '12px', 
+                          height: '12px', 
+                          backgroundColor: style.fill, 
+                          display: 'inline-block',
+                          flexShrink: 0
+                        }}
                       />
-                      <span className="text-xs font-semibold text-white">{p.name}</span>
+                      <span className="text-xs font-semibold text-white" style={{ whiteSpace: 'nowrap' }}>
+                        {p.name}
+                      </span>
                       {isActive && (
-                        <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-cyan-900/60 text-cyan-300 font-mono">
-                          Turn
+                        <span 
+                          className="text-[10px] font-bold uppercase tracking-wider rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                          style={{ padding: '1px 6px', whiteSpace: 'nowrap' }}
+                        >
+                          Active
                         </span>
                       )}
                     </div>
-                    <span className="text-xs font-mono text-slate-300">
-                      <strong>{p.victoryPoints}</strong> VPs • {p.totalCards} C
-                    </span>
+
+                    {/* Right: Metrics kept on the same line */}
+                    <div 
+                      className="text-xs font-mono text-slate-300"
+                      style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+                    >
+                      <strong className="text-white">{p.victoryPoints}</strong> VPs &nbsp;•&nbsp; {p.totalCards} Cards
+                    </div>
                   </div>
                 );
               })}
@@ -383,30 +445,52 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
 
           {/* Opening Placement Review (Turn 0) */}
           {currentTurn === 0 && (
-            <div className="p-3.5 bg-slate-950/80 border border-slate-800 rounded-xl space-y-2">
-              <div className="flex justify-between items-center">
+            <div 
+              className="bg-slate-950/80 border border-slate-800 rounded-xl space-y-2.5"
+              style={{ padding: '14px' }}
+            >
+              <div 
+                style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  width: '100%' 
+                }}
+              >
                 <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
                   Opening Review
                 </span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
+                <span 
+                  className="text-[10px] font-mono font-semibold rounded bg-slate-800 text-slate-300 border border-slate-700"
+                  style={{ padding: '1px 6px' }}
+                >
                   UI-04
                 </span>
               </div>
 
               {selectedCandidate ? (
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-white">
+                <div className="space-y-1.5 text-xs pt-1">
+                  <div 
+                    style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center', 
+                      gap: '8px',
+                      width: '100%' 
+                    }}
+                  >
+                    <span className="font-bold text-white" style={{ whiteSpace: 'nowrap' }}>
                       Rank #{selectedCandidate.rank} (Vertex {selectedCandidate.vertexId})
                     </span>
                     <span
-                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                      className={`text-[10px] font-bold rounded ${
                         selectedCandidate.grade === 'best'
-                          ? 'bg-emerald-500/20 text-emerald-300'
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                           : selectedCandidate.grade === 'good'
-                          ? 'bg-cyan-500/20 text-cyan-300'
-                          : 'bg-amber-500/20 text-amber-300'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                          : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                       }`}
+                      style={{ padding: '1px 6px', whiteSpace: 'nowrap' }}
                     >
                       {selectedCandidate.isAboutEqual ? '≈ About Equal' : selectedCandidate.grade.toUpperCase()}
                     </span>
@@ -419,17 +503,20 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
                   </p>
                 </div>
               ) : (
-                <p className="text-xs text-slate-400 italic">
+                <p className="text-xs text-slate-400 italic leading-relaxed">
                   Select candidate #1, #2, or #3 on the board to inspect initial placement EV.
                 </p>
               )}
             </div>
           )}
 
-          {/* Mid-Game Evaluation */}
+          {/* Mid-Game Move Evaluation */}
           {activeTurn.evaluation && currentTurn > 0 && (
-            <div className="p-3 bg-emerald-950/20 border border-emerald-500/40 rounded-xl space-y-1">
-              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
+            <div 
+              className="bg-emerald-950/20 border border-emerald-500/40 rounded-xl space-y-1.5"
+              style={{ padding: '14px' }}
+            >
+              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
                 Move Grade: {activeTurn.evaluation.moveGrade.toUpperCase()}
               </span>
               <p className="text-xs text-slate-300 leading-relaxed">
