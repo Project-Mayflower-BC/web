@@ -1,5 +1,13 @@
 # Project Mayflower — Web Client (Frontend Skeleton)
 
+Ensure gitignore contains:
+
+node_modules/
+dist/
+.env
+.env.local
+
+
 An interactive, client-side web application for Settlers of Catan strategy analysis, deterministic board playback (UI-03), and post-game decision diagnostics (UI-04 / UI-05).
 
 ---
