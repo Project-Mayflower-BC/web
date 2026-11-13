@@ -79,3 +79,51 @@ export function buildVertexMap(
 
   return vertexMap;
 }
+
+export interface Edge {
+  id: number;
+  v1: number;
+  v2: number;
+}
+
+/**
+ * Builds a deduplicated list of unique board edges connecting adjacent vertices
+ */
+export function buildEdgeList(
+  hexes: { q: number; r: number }[],
+  size: number,
+  vertexMap: Map<number, Point>
+): Edge[] {
+  const edges: Edge[] = [];
+  const edgeSet = new Set<string>();
+  let edgeIdCounter = 0;
+  const tolerance = 4.0;
+
+  // Helper to find existing vertex ID by coordinate
+  const findVertexId = (pt: Point): number | null => {
+    for (const [id, vPt] of vertexMap.entries()) {
+      if (Math.hypot(vPt.x - pt.x, vPt.y - pt.y) < tolerance) return id;
+    }
+    return null;
+  };
+
+  for (const hex of hexes) {
+    const { x: cx, y: cy } = axialToPixel(hex.q, hex.r, size);
+    const corners = getHexVertices(cx, cy, size);
+
+    for (let i = 0; i < 6; i++) {
+      const v1Id = findVertexId(corners[i]);
+      const v2Id = findVertexId(corners[(i + 1) % 6]);
+
+      if (v1Id !== null && v2Id !== null) {
+        const key = v1Id < v2Id ? `${v1Id}-${v2Id}` : `${v2Id}-${v1Id}`;
+        if (!edgeSet.has(key)) {
+          edgeSet.add(key);
+          edges.push({ id: edgeIdCounter++, v1: v1Id, v2: v2Id });
+        }
+      }
+    }
+  }
+
+  return edges;
+}

@@ -4,6 +4,7 @@ import { SAMPLE_MATCH_TURNS } from '../fixtures/sampleMatch';
 import { axialToPixel, getHexCornerPoints, buildVertexMap } from '../utils/coordinates';
 import type { ResourceType, PlayerColor } from '../types/game';
 import { TimelineDock } from '../components/layout/TimelineDock';
+import { buildVertexMap, buildEdgeList } from '../utils/coordinates';
 
 const HEX_SIZE = 54;
 
@@ -31,6 +32,7 @@ export function BoardView() {
 
   // Build vertex map once
   const vertexMap = useMemo(() => buildVertexMap(STANDARD_BOARD_HEXES, HEX_SIZE), []);
+  const edgeList = useMemo(() => buildEdgeList(STANDARD_BOARD_HEXES, HEX_SIZE, vertexMap), [vertexMap]);
 
   // Autoplay ticker
   useEffect(() => {
@@ -149,6 +151,32 @@ export function BoardView() {
               })}
             </g>
 
+            {/* Road Layer */}
+            <g id="road-layer">
+              {activeTurn.roads.map((road) => {
+                const edge = edgeList[road.edgeId];
+                if (!edge) return null;
+
+                const p1 = vertexMap.get(edge.v1);
+                const p2 = vertexMap.get(edge.v2);
+                if (!p1 || !p2) return null;
+
+                return (
+                  <line
+                    key={`${edge.id}-${road.ownerColor}`}
+                    x1={p1.x}
+                    y1={p1.y}
+                    x2={p2.x}
+                    y2={p2.y}
+                    stroke={PLAYER_COLORS[road.ownerColor]}
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    className="drop-shadow transition-all duration-200"
+                  />
+                );
+              })}
+            </g>
+            
             {/* Building Placements */}
             <g id="building-layer">
               {activeTurn.buildings.map((b) => {
