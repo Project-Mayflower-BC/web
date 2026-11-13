@@ -70,7 +70,7 @@ The frontend currently runs on static match fixtures (`src/fixtures/`) allowing 
 
 ---
 
-## 🔍 Verification & Linting
+## Verification & Linting
 
 Before pushing changes or submitting Pull Requests, run the type checker and linter:
 ```bash
