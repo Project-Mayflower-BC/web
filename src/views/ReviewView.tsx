@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { SAMPLE_MATCH_TURNS } from '../fixtures/sampleMatch';
 import type { MoveGrade } from '../types/game';
 
@@ -10,18 +9,20 @@ const GRADE_STYLES: Record<MoveGrade, { badge: string; border: string; label: st
   blunder: { badge: 'bg-rose-500/20 text-rose-300 border-rose-500/40', border: 'border-rose-500/40', label: 'Blunder' },
 };
 
-export function ReviewView() {
-  const [selectedTurnIndex, setSelectedTurnIndex] = useState(0);
+interface ReviewViewProps {
+  currentTurn: number;
+  onTurnChange: (turn: number) => void;
+  onInspectBoard: () => void;
+}
 
+export function ReviewView({ currentTurn, onTurnChange, onInspectBoard }: ReviewViewProps) {
   const turns = SAMPLE_MATCH_TURNS;
-  const activeTurn = turns[selectedTurnIndex];
+  const activeTurn = turns[currentTurn] || turns[0];
 
-  // Coordinates for the SVG Win-Probability Chart (Width 500, Height 140)
   const chartWidth = 500;
   const chartHeight = 120;
   const padding = 20;
 
-  // Mock win-chance distribution for Player 1 (Red) across turns
   const redWinChances = [0.28, 0.32, 0.29, 0.25, 0.42];
 
   const points = redWinChances.map((prob, i) => {
@@ -54,13 +55,12 @@ export function ReviewView() {
       <div className="p-5 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl space-y-3">
         <div className="flex justify-between items-center text-xs text-slate-400">
           <span className="font-semibold uppercase tracking-wider text-slate-300">Win Probability Shift (Red)</span>
-          <span className="font-mono text-cyan-400">Current: {(redWinChances[selectedTurnIndex] * 100).toFixed(1)}%</span>
+          <span className="font-mono text-cyan-400">Current: {(redWinChances[currentTurn] * 100).toFixed(1)}%</span>
         </div>
 
         {/* Responsive Vector Chart */}
         <div className="w-full overflow-x-auto">
           <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-32 select-none">
-            {/* 50% baseline rule */}
             <line
               x1={padding}
               y1={chartHeight / 2}
@@ -70,21 +70,19 @@ export function ReviewView() {
               strokeDasharray="4"
               strokeWidth="1"
             />
-            {/* Trendline */}
             <path d={svgPathD} fill="none" stroke="#06b6d4" strokeWidth="2.5" />
 
-            {/* Turn Nodes */}
             {points.map((pt, idx) => (
               <g
                 key={idx}
                 className="cursor-pointer"
-                onClick={() => setSelectedTurnIndex(idx)}
+                onClick={() => onTurnChange(idx)}
               >
                 <circle
                   cx={pt.x}
                   cy={pt.y}
-                  r={selectedTurnIndex === idx ? 6 : 4}
-                  fill={selectedTurnIndex === idx ? '#38bdf8' : '#0f172a'}
+                  r={currentTurn === idx ? 6 : 4}
+                  fill={currentTurn === idx ? '#38bdf8' : '#0f172a'}
                   stroke="#06b6d4"
                   strokeWidth="2"
                 />
@@ -93,8 +91,8 @@ export function ReviewView() {
                   y={chartHeight - 4}
                   textAnchor="middle"
                   fontSize="10"
-                  fill={selectedTurnIndex === idx ? '#38bdf8' : '#64748b'}
-                  fontWeight={selectedTurnIndex === idx ? 'bold' : 'normal'}
+                  fill={currentTurn === idx ? '#38bdf8' : '#64748b'}
+                  fontWeight={currentTurn === idx ? 'bold' : 'normal'}
                 >
                   T{idx}
                 </text>
@@ -113,11 +111,11 @@ export function ReviewView() {
           </h3>
           <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
             {turns.map((turn, idx) => {
-              const isSelected = selectedTurnIndex === idx;
+              const isSelected = currentTurn === idx;
               return (
                 <div
                   key={turn.turnIndex}
-                  onClick={() => setSelectedTurnIndex(idx)}
+                  onClick={() => onTurnChange(idx)}
                   className={`p-3 rounded-xl border text-left cursor-pointer transition ${
                     isSelected
                       ? 'border-cyan-500 bg-cyan-950/20 shadow-md'
@@ -137,7 +135,7 @@ export function ReviewView() {
           </div>
         </div>
 
-        {/* Right Column (2 spans): Deep Evaluation Breakdown */}
+        {/* Right Column: Deep Evaluation Breakdown */}
         <div className="lg:col-span-2 p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl space-y-5">
           <div className="flex justify-between items-start gap-3 border-b border-slate-800 pb-4">
             <div>
@@ -148,11 +146,19 @@ export function ReviewView() {
                 {activeTurn.actionDescription}
               </h3>
             </div>
-            {activeTurn.evaluation && (
-              <span className={`px-2.5 py-1 text-xs font-bold rounded-lg border ${GRADE_STYLES[activeTurn.evaluation.moveGrade].badge}`}>
-                {GRADE_STYLES[activeTurn.evaluation.moveGrade].label}
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {activeTurn.evaluation && (
+                <span className={`px-2.5 py-1 text-xs font-bold rounded-lg border ${GRADE_STYLES[activeTurn.evaluation.moveGrade].badge}`}>
+                  {GRADE_STYLES[activeTurn.evaluation.moveGrade].label}
+                </span>
+              )}
+              <button
+                onClick={onInspectBoard}
+                className="px-3 py-1 bg-cyan-600/30 hover:bg-cyan-600/50 border border-cyan-500/50 text-cyan-300 text-xs font-semibold rounded-lg transition"
+              >
+                Inspect Board &rarr;
+              </button>
+            </div>
           </div>
 
           {/* Diagnostic Metrics Matrix */}
@@ -160,7 +166,7 @@ export function ReviewView() {
             <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
               <span className="text-[11px] text-slate-400 font-medium">Player Win Chance</span>
               <div className="text-xl font-bold text-cyan-400 mt-0.5">
-                {(redWinChances[selectedTurnIndex] * 100).toFixed(1)}%
+                {(redWinChances[currentTurn] * 100).toFixed(1)}%
               </div>
             </div>
             <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
@@ -172,7 +178,7 @@ export function ReviewView() {
             <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
               <span className="text-[11px] text-slate-400 font-medium">Variance Assessment</span>
               <div className="text-xl font-bold text-slate-200 mt-0.5">
-                {selectedTurnIndex === 0 ? 'About Equal' : 'Significant'}
+                {currentTurn === 0 ? 'About Equal' : 'Significant'}
               </div>
             </div>
           </div>

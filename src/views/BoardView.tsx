@@ -1,7 +1,12 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { STANDARD_BOARD_HEXES } from '../fixtures/boardTopology';
 import { SAMPLE_MATCH_TURNS } from '../fixtures/sampleMatch';
-import { axialToPixel, getHexCornerPoints, buildVertexMap, buildEdgeList } from '../utils/coordinates';
+import { 
+  axialToPixel, 
+  getHexCornerPoints, 
+  buildVertexMap, 
+  buildEdgeList 
+} from '../utils/coordinates';
 import type { ResourceType, PlayerColor } from '../types/game';
 import { TimelineDock } from '../components/layout/TimelineDock';
 
@@ -23,30 +28,31 @@ const PLAYER_COLORS: Record<PlayerColor, string> = {
   white: '#f1f5f9',
 };
 
-export function BoardView() {
-  const [turnIndex, setTurnIndex] = useState(0);
+interface BoardViewProps {
+  currentTurn: number;
+  onTurnChange: (turn: number) => void;
+}
+
+export function BoardView({ currentTurn, onTurnChange }: BoardViewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const activeTurn = SAMPLE_MATCH_TURNS[turnIndex];
+  const activeTurn = SAMPLE_MATCH_TURNS[currentTurn] || SAMPLE_MATCH_TURNS[0];
 
-  // Build vertex map once
   const vertexMap = useMemo(() => buildVertexMap(STANDARD_BOARD_HEXES, HEX_SIZE), []);
   const edgeList = useMemo(() => buildEdgeList(STANDARD_BOARD_HEXES, HEX_SIZE, vertexMap), [vertexMap]);
 
-  // Autoplay ticker
+  // Autoplay ticker updates shared state
   useEffect(() => {
     if (!isPlaying) return;
     const interval = setInterval(() => {
-      setTurnIndex((prev) => {
-        if (prev >= SAMPLE_MATCH_TURNS.length - 1) {
-          setIsPlaying(false);
-          return prev;
-        }
-        return prev + 1;
-      });
+      if (currentTurn >= SAMPLE_MATCH_TURNS.length - 1) {
+        setIsPlaying(false);
+      } else {
+        onTurnChange(currentTurn + 1);
+      }
     }, 1500);
     return () => clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, currentTurn, onTurnChange]);
 
   return (
     <div className="space-y-6">
@@ -150,7 +156,7 @@ export function BoardView() {
               })}
             </g>
 
-            {/* Road Layer */}
+            {/* Road Placements */}
             <g id="road-layer">
               {activeTurn.roads.map((road) => {
                 const edge = edgeList[road.edgeId];
@@ -175,7 +181,7 @@ export function BoardView() {
                 );
               })}
             </g>
-            
+
             {/* Building Placements */}
             <g id="building-layer">
               {activeTurn.buildings.map((b) => {
@@ -196,7 +202,6 @@ export function BoardView() {
                         className="drop-shadow"
                       />
                     ) : (
-                      /* City representation */
                       <rect
                         x={pt.x - 9}
                         y={pt.y - 9}
@@ -259,10 +264,10 @@ export function BoardView() {
 
       {/* Persistent Bottom Timeline Scrubber */}
       <TimelineDock
-        currentTurn={turnIndex}
+        currentTurn={currentTurn}
         totalTurns={SAMPLE_MATCH_TURNS.length}
         isPlaying={isPlaying}
-        onTurnChange={setTurnIndex}
+        onTurnChange={onTurnChange}
         onTogglePlay={() => setIsPlaying((prev) => !prev)}
       />
     </div>

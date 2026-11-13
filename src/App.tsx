@@ -7,12 +7,24 @@ import { ReviewView } from './views/ReviewView';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ViewTab>('hub');
+  const [currentTurn, setCurrentTurn] = useState<number>(0);
 
   return (
     <AppShell activeTab={activeTab} onSelectTab={setActiveTab}>
       {activeTab === 'hub' && <HomeView onNavigate={setActiveTab} />}
-      {activeTab === 'board' && <BoardView />}
-      {activeTab === 'review' && <ReviewView />}
+      {activeTab === 'board' && (
+        <BoardView 
+          currentTurn={currentTurn} 
+          onTurnChange={setCurrentTurn} 
+        />
+      )}
+      {activeTab === 'review' && (
+        <ReviewView
+          currentTurn={currentTurn}
+          onTurnChange={setCurrentTurn}
+          onInspectBoard={() => setActiveTab('board')}
+        />
+      )}
     </AppShell>
   );
 }
