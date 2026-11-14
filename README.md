@@ -15,8 +15,8 @@ An interactive, client-side web application for Settlers of Catan strategy analy
 ## Prerequisites
 
 Ensure you have the following installed on your machine:
-* **Node.js**: v18.0.0 or later (LTS recommended)
-* **npm (see installation guide below)**: v9.0.0 or later (bundled with Node.js)
+* **Node.js (see installation guide below)**: v18.0.0 or later (LTS recommended)
+* **npm**: v9.0.0 or later (bundled with Node.js)
 * **Web Browser**: Desktop Chromium-based browser (Chrome, Edge, Brave)
 
 ---
