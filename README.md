@@ -16,7 +16,7 @@ An interactive, client-side web application for Settlers of Catan strategy analy
 
 Ensure you have the following installed on your machine:
 * **Node.js**: v18.0.0 or later (LTS recommended)
-* **npm**: v9.0.0 or later (bundled with Node.js)
+* **npm (see installation guide below)**: v9.0.0 or later (bundled with Node.js)
 * **Web Browser**: Desktop Chromium-based browser (Chrome, Edge, Brave)
 
 ---
@@ -98,8 +98,48 @@ npm run build
 * **TypeScript cannot find module or type declarations:**  
   If moving or adding components results in `ts(2307)` or `ts(2322)` caching errors in VS Code, open the Command Palette (`Ctrl + Shift + P`) and execute **`TypeScript: Restart TS Server`**.
 
+---
 
+### Node.js Installation & Environment Setup
 
+This project requires **Node.js v18.0.0 or higher** and **npm v9.0.0 or higher**.
+
+---
+
+#### 1. Check if Node.js & npm are Installed
+Open your terminal (PowerShell, Command Prompt, or macOS/Linux Terminal) and run:
+
+```bash
+node -v
+npm -v
+```
+
+* **If installed:** You will see version strings (e.g., `v20.11.0` and `10.2.4`). Ensure the Node version is **v18.0.0 or higher**.
+* **If not installed:** The terminal will return `'node' is not recognized` (Windows) or `command not found: node` (macOS/Linux). Proceed to the installation steps below.
+
+---
+
+#### 2. Install Node.js (LTS Version)
+
+Choose the installation method suited for your environment:
+
+##### Option A: Official Installer (Recommended for Beginners)
+1. Go to the official download page: [nodejs.org](https://nodejs.org/).
+2. Download the **LTS (Long Term Support)** installer:
+   * **Windows:** Run the `.msi` installer. Accept the license agreement and proceed with default options (ensure **"Add to PATH"** is selected).
+   * **macOS:** Run the `.pkg` installer and follow the standard installation prompts.
+3. **Restart your terminal** or VS Code so the new system PATH variables take effect.
+
+##### Option B: Package Manager (CLI)
+* **macOS (via Homebrew):**
+  ```bash
+  brew install node
+  ```
+* **Windows (via winget in PowerShell/CMD):**
+  ```powershell
+  winget install OpenJS.NodeJS.
+
+---
 
 # React + TypeScript + Vite
 
