@@ -79,23 +79,13 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
         </span>
       </div>
 
-      {/* Main Two-Column Layout */}
-      <div 
-        className="w-full"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) 400px',
-          gap: '24px',
-          alignItems: 'start'
-        }}
-      >
-        {/* LEFT COLUMN: Large Board Canvas + Under-Board Action Controls */}
+      {/* Responsive Main Layout: Stacks vertically by default, 2 columns on xl (>=1280px) */}
+      <div className="w-full grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_400px] gap-6 items-start justify-items-center xl:justify-items-stretch">
+        {/* COLUMN 1: Large Board Canvas + Under-Board Action Controls */}
         <div className="flex flex-col items-center gap-4 w-full">
-          
           {/* Scaled-up Board Card Frame */}
           <div 
-            className="flex items-center justify-center p-6 bg-slate-900/60 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden"
-            style={{ width: '100%', maxWidth: '820px', minHeight: '680px' }}
+            className="flex items-center justify-center p-6 bg-slate-900/60 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden w-full max-w-[820px] min-h-[680px]"
           >
             <svg
               viewBox="-450 -450 900 900"
@@ -141,7 +131,6 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
 
                       {/* Offshore Harbor Badge */}
                       <g transform={`translate(${coords.badgeCenter.x}, ${coords.badgeCenter.y})`}>
-                        {/* Outer Ring */}
                         <circle
                           r="22"
                           fill="#fef3c7"
@@ -149,7 +138,6 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
                           strokeWidth="2.5"
                           className="drop-shadow-md transition-transform group-hover:scale-110"
                         />
-                        {/* Harbor Label */}
                         <text
                           textAnchor="middle"
                           dominantBaseline="central"
@@ -365,7 +353,7 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
           </div>
 
           {/* Under-Board Action Triggers & Scrubber */}
-          <div className="w-full space-y-2" style={{ maxWidth: '820px' }}>
+          <div className="w-full space-y-2 max-w-[820px]">
             <div className="flex items-center gap-2">
               <button
                 onClick={onOpenReview}
@@ -391,58 +379,28 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
           </div>
         </div>
 
-        {/* RIGHT COLUMN: "Standard Game Info" Panel */}
+        {/* COLUMN 2: "Standard Game Info" Panel */}
+        {/* Matches board max-width (820px) when stacked below; fixes to 400px when side-by-side on xl */}
         <div 
-          className="bg-slate-900/80 border border-slate-800 rounded-2xl shadow-xl space-y-4"
-          style={{ 
-            width: '400px', 
-            minWidth: '400px', 
-            padding: '20px', 
-            boxSizing: 'border-box' 
-          }}
+          className="bg-slate-900/80 border border-slate-800 rounded-2xl shadow-xl space-y-4 p-5 box-border w-full max-w-[820px] xl:max-w-none xl:w-[400px] xl:min-w-[400px]"
         >
           {/* Section Header */}
-          <div 
-            className="border-b border-slate-800 pb-3"
-            style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              width: '100%' 
-            }}
-          >
+          <div className="border-b border-slate-800 pb-3 flex justify-between items-center w-full">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
               Standard Game Info
             </h3>
-            <span 
-              className="text-xs font-mono font-semibold rounded bg-slate-950 text-cyan-400 border border-slate-800"
-              style={{ padding: '2px 8px' }}
-            >
+            <span className="text-xs font-mono font-semibold rounded bg-slate-950 text-cyan-400 border border-slate-800 px-2 py-0.5">
               Turn {activeTurn.turnIndex}
             </span>
           </div>
 
           {/* Current Action Card */}
-          <div 
-            className="bg-slate-950/70 border border-slate-800 rounded-xl space-y-2"
-            style={{ padding: '14px' }}
-          >
-            <div 
-              style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center', 
-                gap: '10px',
-                width: '100%'
-              }}
-            >
+          <div className="bg-slate-950/70 border border-slate-800 rounded-xl space-y-2 p-3.5">
+            <div className="flex justify-between items-center gap-2.5 w-full">
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                 Current Action
               </span>
-              <span 
-                className="text-xs font-mono font-semibold rounded bg-slate-900 border border-slate-800 text-amber-300"
-                style={{ padding: '2px 8px', whiteSpace: 'nowrap' }}
-              >
+              <span className="text-xs font-mono font-semibold rounded bg-slate-900 border border-slate-800 text-amber-300 px-2 py-0.5 whitespace-nowrap">
                 {activeTurn.diceRoll 
                   ? `Roll: [${activeTurn.diceRoll[0]}] + [${activeTurn.diceRoll[1]}] = ${activeTurn.diceRoll[0] + activeTurn.diceRoll[1]}` 
                   : 'Setup Phase'}
@@ -465,51 +423,28 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
                 return (
                   <div
                     key={p.seatId}
-                    className={`border rounded-xl transition ${
+                    className={`border rounded-xl transition flex justify-between items-center p-2.5 px-3.5 gap-3 w-full box-border ${
                       isActive 
                         ? 'border-cyan-500/60 bg-cyan-950/20 shadow-sm' 
                         : 'border-slate-800/80 bg-slate-950/50'
                     }`}
-                    style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      alignItems: 'center', 
-                      padding: '10px 14px',
-                      gap: '12px',
-                      width: '100%',
-                      boxSizing: 'border-box'
-                    }}
                   >
-                    {/* Left: Color dot, Name, Active Badge */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div className="flex items-center gap-2.5">
                       <span
-                        className="rounded-full shadow-sm"
-                        style={{ 
-                          width: '12px', 
-                          height: '12px', 
-                          backgroundColor: style.fill, 
-                          display: 'inline-block',
-                          flexShrink: 0
-                        }}
+                        className="rounded-full shadow-sm w-3 h-3 shrink-0 inline-block"
+                        style={{ backgroundColor: style.fill }}
                       />
-                      <span className="text-xs font-semibold text-white" style={{ whiteSpace: 'nowrap' }}>
+                      <span className="text-xs font-semibold text-white whitespace-nowrap">
                         {p.name}
                       </span>
                       {isActive && (
-                        <span 
-                          className="text-[10px] font-bold uppercase tracking-wider rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
-                          style={{ padding: '1px 6px', whiteSpace: 'nowrap' }}
-                        >
+                        <span className="text-[10px] font-bold uppercase tracking-wider rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 whitespace-nowrap">
                           Active
                         </span>
                       )}
                     </div>
 
-                    {/* Right: Metrics kept on the same line */}
-                    <div 
-                      className="text-xs font-mono text-slate-300"
-                      style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
-                    >
+                    <div className="text-xs font-mono text-slate-300 whitespace-nowrap shrink-0">
                       <strong className="text-white">{p.victoryPoints}</strong> VPs &nbsp;•&nbsp; {p.totalCards} Cards
                     </div>
                   </div>
@@ -520,52 +455,30 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
 
           {/* Opening Placement Review (Turn 0) */}
           {currentTurn === 0 && (
-            <div 
-              className="bg-slate-950/80 border border-slate-800 rounded-xl space-y-2.5"
-              style={{ padding: '14px' }}
-            >
-              <div 
-                style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                  width: '100%' 
-                }}
-              >
+            <div className="bg-slate-950/80 border border-slate-800 rounded-xl space-y-2.5 p-3.5">
+              <div className="flex justify-between items-center w-full">
                 <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
                   Opening Review
                 </span>
-                <span 
-                  className="text-[10px] font-mono font-semibold rounded bg-slate-800 text-slate-300 border border-slate-700"
-                  style={{ padding: '1px 6px' }}
-                >
+                <span className="text-[10px] font-mono font-semibold rounded bg-slate-800 text-slate-300 border border-slate-700 px-1.5 py-0.5">
                   UI-04
                 </span>
               </div>
 
               {selectedCandidate ? (
                 <div className="space-y-1.5 text-xs pt-1">
-                  <div 
-                    style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      alignItems: 'center', 
-                      gap: '8px',
-                      width: '100%' 
-                    }}
-                  >
-                    <span className="font-bold text-white" style={{ whiteSpace: 'nowrap' }}>
+                  <div className="flex justify-between items-center gap-2 w-full">
+                    <span className="font-bold text-white whitespace-nowrap">
                       Rank #{selectedCandidate.rank} (Vertex {selectedCandidate.vertexId})
                     </span>
                     <span
-                      className={`text-[10px] font-bold rounded ${
+                      className={`text-[10px] font-bold rounded px-1.5 py-0.5 whitespace-nowrap ${
                         selectedCandidate.grade === 'best'
                           ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                           : selectedCandidate.grade === 'good'
                           ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
                           : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                       }`}
-                      style={{ padding: '1px 6px', whiteSpace: 'nowrap' }}
                     >
                       {selectedCandidate.isAboutEqual ? '≈ About Equal' : selectedCandidate.grade.toUpperCase()}
                     </span>
@@ -587,10 +500,7 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
 
           {/* Mid-Game Move Evaluation */}
           {activeTurn.evaluation && currentTurn > 0 && (
-            <div 
-              className="bg-emerald-950/20 border border-emerald-500/40 rounded-xl space-y-1.5"
-              style={{ padding: '14px' }}
-            >
+            <div className="bg-emerald-950/20 border border-emerald-500/40 rounded-xl space-y-1.5 p-3.5">
               <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
                 Move Grade: {activeTurn.evaluation.moveGrade.toUpperCase()}
               </span>
