@@ -5,7 +5,7 @@ export const SAMPLE_MATCH_TURNS: TurnState[] = [
     turnIndex: 0,
     activeSeat: 0,
     activeColor: 'red',
-    actionDescription: 'Turn 0: Setup Phase — Red places first settlement and road',
+    actionDescription: 'Setup Phase — Red places first settlement and road',
     diceRoll: null,
     robberHexId: 9, // Desert
     buildings: [
@@ -35,7 +35,7 @@ export const SAMPLE_MATCH_TURNS: TurnState[] = [
     turnIndex: 1,
     activeSeat: 0,
     activeColor: 'red',
-    actionDescription: 'Turn 1: Red rolls 8 (Harvest: 2 Ore, 1 Wood)',
+    actionDescription: 'Red rolls 8 (Harvest: 2 Ore, 1 Wood)',
     diceRoll: [5, 3],
     robberHexId: 9,
     buildings: [
@@ -59,7 +59,7 @@ export const SAMPLE_MATCH_TURNS: TurnState[] = [
     turnIndex: 2,
     activeSeat: 1,
     activeColor: 'blue',
-    actionDescription: 'Turn 2: Blue rolls 6 (Harvest: 1 Brick) and builds a road',
+    actionDescription: 'Blue rolls 6 (Harvest: 1 Brick) and builds a road',
     diceRoll: [2, 4],
     robberHexId: 9,
     buildings: [
@@ -84,7 +84,7 @@ export const SAMPLE_MATCH_TURNS: TurnState[] = [
     turnIndex: 3,
     activeSeat: 2,
     activeColor: 'orange',
-    actionDescription: 'Turn 3: Orange rolls 7 — Moves robber to Hex #11 (8-Ore)',
+    actionDescription: 'Orange rolls 7 — Moves robber to Hex #11 (8-Ore)',
     diceRoll: [4, 3],
     robberHexId: 11, // Robber blocks hex 11
     buildings: [
@@ -109,7 +109,7 @@ export const SAMPLE_MATCH_TURNS: TurnState[] = [
     turnIndex: 4,
     activeSeat: 0,
     activeColor: 'red',
-    actionDescription: 'Turn 4: Red upgrades Settlement on Vertex 10 to a City (+1 VP)',
+    actionDescription: 'Red upgrades Settlement on Vertex 10 to a City (+1 VP)',
     diceRoll: [5, 4],
     robberHexId: 11,
     buildings: [

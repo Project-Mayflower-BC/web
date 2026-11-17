@@ -72,7 +72,7 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
       <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
         <div>
           <h2 className="text-lg font-bold text-white tracking-tight">The Board Viewer</h2>
-          <p className="text-xs text-slate-400">Current game state replay & interactive placement inspection</p>
+          <p className="text-xs text-slate-400">Current game state replay and interactive placement inspection</p>
         </div>
         <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-400">
           Standard 4-Player Match
