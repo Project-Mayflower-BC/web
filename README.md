@@ -100,6 +100,33 @@ npm run build
 
 ---
 
+### Automated Testing with Vitest
+
+This project uses [Vitest](https://vitest.dev/) for unit, component, and coordinate geometry tests.
+
+#### Running Tests Locally
+
+* **Single Run (CI Mode):** Run all tests once and exit (used in automated GitHub Actions pipelines):
+  ```bash
+  npm test
+  ```
+  *(Equivalently: `npx vitest run`)*
+
+* **Watch Mode (Interactive Development):** Re-run tests automatically on file save:
+  ```bash
+  npx vitest
+  ```
+
+* **Test Coverage:** Generate test coverage reports:
+  ```bash
+  npx vitest run --coverage
+  ```
+
+#### Writing Tests
+Place test files alongside source files using the `*.test.ts` or `*.test.tsx` naming convention (e.g., `src/utils/coordinates.test.ts`). Every new utility function or state reducer should include corresponding assertions to satisfy the team's Definition of Done before merging pull requests[cite: 3].
+
+---
+
 ### Node.js Installation & Environment Setup
 
 This project requires **Node.js v18.0.0 or higher** and **npm v9.0.0 or higher**.
