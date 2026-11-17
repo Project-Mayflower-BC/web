@@ -87,3 +87,30 @@ describe('boardTopology.ts - Standard Catan Board Validation', () => {
     });
   });
 });
+
+import { STANDARD_PORTS } from './boardTopology';
+
+describe('boardTopology.ts - Trading Ports Validation', () => {
+  it('contains exactly 9 perimeter trading ports', () => {
+    expect(STANDARD_PORTS).toHaveLength(9);
+  });
+
+  it('matches official Catan distribution (4 generic 3:1 ports and 5 resource 2:1 ports)', () => {
+    const genericPorts = STANDARD_PORTS.filter((p) => p.type === 'generic');
+    const resourcePorts = STANDARD_PORTS.filter((p) => p.type !== 'generic');
+
+    expect(genericPorts).toHaveLength(4);
+    genericPorts.forEach((p) => expect(p.ratio).toBe(3));
+
+    expect(resourcePorts).toHaveLength(5);
+    resourcePorts.forEach((p) => expect(p.ratio).toBe(2));
+
+    const resourceTypes = resourcePorts.map((p) => p.type).sort();
+    expect(resourceTypes).toEqual(['brick', 'ore', 'sheep', 'wheat', 'wood']);
+  });
+
+  it('assigns unique port IDs from 1 to 9', () => {
+    const ids = new Set(STANDARD_PORTS.map((p) => p.id));
+    expect(ids.size).toBe(9);
+  });
+});

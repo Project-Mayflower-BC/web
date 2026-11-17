@@ -5,10 +5,13 @@ import {
   axialToPixel, 
   getHexCornerPoints, 
   buildVertexMap, 
-  buildEdgeList 
+  buildEdgeList,
+  getPortCoordinates 
 } from '../utils/coordinates';
 import type { ResourceType, PlayerColor } from '../types/game';
 import { TimelineDock } from '../components/layout/TimelineDock';
+import { STANDARD_PORTS } from '../fixtures/boardTopology';
+import type { PortType } from '../types/game';
 
 const HEX_SIZE = 76;
 
@@ -19,6 +22,15 @@ const RESOURCE_THEMES: Record<ResourceType, { fill: string; stroke: string; labe
   wheat:  { fill: '#eab308', stroke: '#ca8a04', label: 'Grain' },
   ore:    { fill: '#64748b', stroke: '#475569', label: 'Ore' },
   desert: { fill: '#b45309', stroke: '#78350f', label: 'Desert' },
+};
+
+const PORT_ICONS: Record<PortType, string> = {
+  generic: '⚓ 3:1',
+  wood: '🌲 2:1',
+  brick: '🧱 2:1',
+  sheep: '🐑 2:1',
+  wheat: '🌾 2:1',
+  ore: '⛰️ 2:1',
 };
 
 const PLAYER_COLORS: Record<PlayerColor, { fill: string; border: string }> = {
@@ -86,10 +98,73 @@ export function BoardView({ currentTurn, onTurnChange, onOpenReview }: BoardView
             style={{ width: '100%', maxWidth: '820px', minHeight: '680px' }}
           >
             <svg
-              viewBox="-400 -360 800 720"
+              viewBox="-450 -450 900 900"
               style={{ width: '100%', height: 'auto', maxHeight: '660px' }}
               className="drop-shadow-xl select-none"
             >
+              {/* Harbors and Piers */}
+              <g id="trading-ports">
+                {STANDARD_PORTS.map((port) => {
+                  const hexPixel = axialToPixel(port.hexQ, port.hexR, 76);
+                  const coords = getPortCoordinates(
+                    hexPixel.x,
+                    hexPixel.y,
+                    76,
+                    port.vertexIndices,
+                    port.outwardAngleDeg
+                  );
+
+                  return (
+                    <g key={`port-${port.id}`} className="group cursor-pointer select-none">
+                      {/* Pier Plank 1 */}
+                      <line
+                        x1={coords.pier1.x1}
+                        y1={coords.pier1.y1}
+                        x2={coords.pier1.x2}
+                        y2={coords.pier1.y2}
+                        stroke="#b45309"
+                        strokeWidth="5"
+                        strokeLinecap="round"
+                        strokeDasharray="2 3"
+                      />
+                      {/* Pier Plank 2 */}
+                      <line
+                        x1={coords.pier2.x1}
+                        y1={coords.pier2.y1}
+                        x2={coords.pier2.x2}
+                        y2={coords.pier2.y2}
+                        stroke="#b45309"
+                        strokeWidth="5"
+                        strokeLinecap="round"
+                        strokeDasharray="2 3"
+                      />
+
+                      {/* Offshore Harbor Badge */}
+                      <g transform={`translate(${coords.badgeCenter.x}, ${coords.badgeCenter.y})`}>
+                        {/* Outer Ring */}
+                        <circle
+                          r="22"
+                          fill="#fef3c7"
+                          stroke="#92400e"
+                          strokeWidth="2.5"
+                          className="drop-shadow-md transition-transform group-hover:scale-110"
+                        />
+                        {/* Harbor Label */}
+                        <text
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          fontSize="10"
+                          fontWeight="bold"
+                          fill="#78350f"
+                        >
+                          {PORT_ICONS[port.type]}
+                        </text>
+                      </g>
+                    </g>
+                  );
+                })}
+              </g>
+
               {/* Hex Tiles */}
               <g id="hex-layer">
                 {STANDARD_BOARD_HEXES.map((hex) => {

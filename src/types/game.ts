@@ -2,6 +2,7 @@ export type ResourceType = 'ore' | 'wheat' | 'sheep' | 'wood' | 'brick' | 'deser
 export type PlayerColor = 'red' | 'blue' | 'orange' | 'white';
 export type BuildingType = 'settlement' | 'city';
 export type MoveGrade = 'best' | 'good' | 'inaccuracy' | 'mistake' | 'blunder';
+export type PortType = 'generic' | 'ore' | 'wheat' | 'sheep' | 'wood' | 'brick';
 
 export interface HexDefinition {
   id: number;
@@ -10,6 +11,19 @@ export interface HexDefinition {
   resource: ResourceType;
   rollNumber: number | null; // 2-12 (null for desert)
   pips: number;              // 0-5 probability dots
+}
+
+export interface PortDefinition {
+  id: number;
+  type: PortType;
+  ratio: 2 | 3;
+  // Coastal hex anchoring the port
+  hexQ: number;
+  hexR: number;
+  // The vertex indices (0 to 5) on the hex defining the coastal edge
+  vertexIndices: [number, number];
+  // Angle pointing outward into the ocean (in degrees, 0 = right, 90 = bottom)
+  outwardAngleDeg: number;
 }
 
 export interface BuildingPlacement {

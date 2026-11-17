@@ -127,3 +127,48 @@ export function buildEdgeList(
 
   return edges;
 }
+
+export interface PortCoordinates {
+  badgeCenter: { x: number; y: number };
+  pier1: { x1: number; y1: number; x2: number; y2: number };
+  pier2: { x1: number; y1: number; x2: number; y2: number };
+}
+
+export function getPortCoordinates(
+  hexCenterX: number,
+  hexCenterY: number,
+  hexRadius: number,
+  vertexIndices: [number, number],
+  outwardAngleDeg: number
+): PortCoordinates {
+  // 1. Calculate the exact pixel locations of the two shoreline vertices
+  const getVertexPixel = (vIndex: number) => {
+    const angleDeg = 60 * vIndex - 30; // Pointy-top hex angle
+    const angleRad = (Math.PI / 180) * angleDeg;
+    return {
+      x: hexCenterX + hexRadius * Math.cos(angleRad),
+      y: hexCenterY + hexRadius * Math.sin(angleRad),
+    };
+  };
+
+  const v1 = getVertexPixel(vertexIndices[0]);
+  const v2 = getVertexPixel(vertexIndices[1]);
+
+  // 2. Center midpoint along the coastal edge
+  const edgeMidX = (v1.x + v2.x) / 2;
+  const edgeMidY = (v1.y + v2.y) / 2;
+
+  // 3. Project the badge offshore along outwardAngleDeg
+  const badgeDistance = 42; // Distance offshore from edge midpoint
+  const rad = (Math.PI / 180) * outwardAngleDeg;
+  const badgeCenter = {
+    x: edgeMidX + badgeDistance * Math.cos(rad),
+    y: edgeMidY + badgeDistance * Math.sin(rad),
+  };
+
+  return {
+    badgeCenter,
+    pier1: { x1: v1.x, y1: v1.y, x2: badgeCenter.x, y2: badgeCenter.y },
+    pier2: { x1: v2.x, y1: v2.y, x2: badgeCenter.x, y2: badgeCenter.y },
+  };
+}
