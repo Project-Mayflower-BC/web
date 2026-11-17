@@ -38,7 +38,7 @@ export function HomeView({ onNavigate }: HomeViewProps) {
             Game Review & Diagnostics
           </h3>
           <p className="text-xs text-slate-300 mt-2">
-            Inspect turn-zero opening EV analysis, blunder flags, and candidate rankings[cite: 1].
+            Inspect turn-zero opening EV analysis, blunder flags, and candidate rankings.
           </p>
           <button className="mt-4 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold rounded text-white transition">
             Launch Review &rarr;
@@ -50,7 +50,7 @@ export function HomeView({ onNavigate }: HomeViewProps) {
       <div className="p-8 border-2 border-dashed border-slate-800 rounded-xl text-center bg-slate-900/30">
         <p className="text-sm font-medium text-slate-400">Upload Session JSON Dropzone</p>
         <span className="inline-block mt-2 px-2.5 py-1 text-[11px] font-semibold bg-slate-800 text-amber-400 rounded-full border border-amber-500/30">
-          UI-02 • Follow-up Ingestion Sprint[cite: 1, 3]
+          UI-02 • Follow-up Ingestion Sprint
         </span>
       </div>
     </div>

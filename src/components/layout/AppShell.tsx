@@ -12,13 +12,15 @@ export function AppShell({ activeTab, onSelectTab, children }: AppShellProps) {
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
       {/* Persistent Top Navigation Bar */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-6 py-3.5 flex justify-between items-center">
+      <header className="flex items-center justify-between px-6 py-3 bg-slate-900 border-b border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="h-3 w-3 rounded-full bg-cyan-400"></div>
-          <div>
-            <span className="text-sm font-bold text-white tracking-wide">PROJECT MAYFLOWER</span>
-            <span className="text-xs text-slate-400 ml-2">Catan Strategy & Review Engine</span>
-          </div>
+          <span className="text-base font-extrabold tracking-wider text-amber-500 uppercase">
+            PROJECT MAYFLOWER
+          </span>
+          <span className="text-slate-600"> | </span>
+          <span className="text-sm font-medium text-slate-400">
+            Catan Strategy and Review Engine
+          </span>
         </div>
 
         {/* Tab Switcher */}
