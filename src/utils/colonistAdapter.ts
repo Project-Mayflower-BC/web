@@ -1,44 +1,20 @@
-export interface CollectorExport {
-  schema: string;
-  extensionVersion?: string;
-  events: Array<{
-    decoded?: {
-      id?: string;
-      value?: any;
-      data?: {
-        type: number;
-        sequence?: number;
-        payload?: any;
-      };
-    };
-  }>;
-}
+import type {
+  ColonistSessionExport,
+  ReplayTurn,
+  PlayerColor,
+  BoardPieceRoad,
+  BoardPieceBuilding,
+  PlayerSummary,
+} from '../types/replay';
 
-export interface ReplayTurn {
-  turnIndex: number;
-  activeColor: 'red' | 'blue' | 'orange' | 'white';
-  diceRoll: [number, number] | null;
-  actionDescription: string;
-  robberHexId: number;
-  roads: Array<{ edgeId: number; ownerColor: 'red' | 'blue' | 'orange' | 'white' }>;
-  buildings: Array<{ vertexId: number; type: 'settlement' | 'city'; ownerColor: 'red' | 'blue' | 'orange' | 'white' }>;
-  playerSummaries: Array<{
-    seatId: number;
-    name: string;
-    color: 'red' | 'blue' | 'orange' | 'white';
-    victoryPoints: number;
-    totalCards: number;
-  }>;
-}
-
-const COLOR_MAP: Record<number, 'red' | 'blue' | 'orange' | 'white'> = {
+const COLOR_MAP: Record<number, PlayerColor> = {
   1: 'red',
   2: 'blue',
   3: 'orange',
   4: 'white',
 };
 
-export function parseColonistExport(json: CollectorExport): ReplayTurn[] {
+export function parseColonistExport(json: ColonistSessionExport): ReplayTurn[] {
   if (!json.schema?.startsWith('colonist-session-collector/')) {
     throw new Error('Unsupported schema: Expected colonist-session-collector/v1');
   }
@@ -67,8 +43,8 @@ export function parseColonistExport(json: CollectorExport): ReplayTurn[] {
   // 2. Running state accumulated over diffs
   let currentTurnIndex = 0;
   let activeRobberTile = gameState.mechanicRobberState?.locationTileIndex ?? 0;
-  const roads: Array<{ edgeId: number; ownerColor: 'red' | 'blue' | 'orange' | 'white' }> = [];
-  const buildings: Array<{ vertexId: number; type: 'settlement' | 'city'; ownerColor: 'red' | 'blue' | 'orange' | 'white' }> = [];
+  const roads: BoardPieceRoad[] = [];
+  const buildings: BoardPieceBuilding[] = [];
 
   const turnHistory: ReplayTurn[] = [];
 
@@ -96,7 +72,6 @@ export function parseColonistExport(json: CollectorExport): ReplayTurn[] {
     const diff = m.payload.diff;
     const mdiff = diff.mapState || {};
 
-    // Collect newly built structures in this diff
     const newCorners: Array<{ owner: number; cornerId: number }> = [];
     const newCities: number[] = [];
     for (const [k, v] of Object.entries(mdiff.tileCornerStates || {})) {
@@ -159,19 +134,22 @@ export function parseColonistExport(json: CollectorExport): ReplayTurn[] {
       // Type 4 & 5: Settlements, Cities, and Roads
       if (lt === 4 || lt === 5) {
         const piece = text.pieceEnum;
-        if (piece === 0) { // Road
+        if (piece === 0) {
+          // Road
           const edgeIdx = newEdges.findIndex((e) => e.owner === color);
           if (edgeIdx !== -1) {
             roads.push({ edgeId: newEdges[edgeIdx].edgeId, ownerColor: playerColor });
             newEdges.splice(edgeIdx, 1);
           }
-        } else if (piece === 2) { // Settlement
+        } else if (piece === 2) {
+          // Settlement
           const cornerIdx = newCorners.findIndex((c) => c.owner === color);
           if (cornerIdx !== -1) {
             buildings.push({ vertexId: newCorners[cornerIdx].cornerId, type: 'settlement', ownerColor: playerColor });
             newCorners.splice(cornerIdx, 1);
           }
-        } else if (piece === 3) { // City upgrade
+        } else if (piece === 3) {
+          // City upgrade
           const cityCorner = newCities.shift();
           if (cityCorner !== undefined) {
             const b = buildings.find((x) => x.vertexId === cityCorner);
