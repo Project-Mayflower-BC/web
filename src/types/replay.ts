@@ -54,11 +54,11 @@ export const ANY_CARD = 9;
 export interface ColonistRawEvent {
   decoded?: {
     id?: string; // Target game channel is "130"
-    value?: any; // Nested envelope support for v0.1-0.3 and v0.4
+    value?: unknown; // Nested envelope support for v0.1-0.3 and v0.4
     data?: {
       type: number; // 4 = Board Snapshot, 91 = State Diff, 45 = End Game
       sequence?: number;
-      payload?: any;
+      payload?: unknown;
     };
   };
 }
@@ -126,7 +126,7 @@ export interface ActionRecord {
   sequence: number;
   kind: ActionKind;
   seat: number | null;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
 }
 
 export interface CheckpointRecord {

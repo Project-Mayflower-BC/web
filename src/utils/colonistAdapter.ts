@@ -14,25 +14,55 @@ const COLOR_MAP: Record<number, PlayerColor> = {
   4: 'white',
 };
 
+interface ColonistGameMessage {
+  type: number;
+  sequence?: number;
+  payload?: {
+    playOrder?: number[];
+    gameState?: {
+      mechanicRobberState?: { locationTileIndex?: number };
+    };
+    diff?: {
+      mapState?: {
+        tileCornerStates?: Record<string, { owner?: number | null; buildingType?: number }>;
+        tileEdgeStates?: Record<string, { owner?: number | null }>;
+      };
+      mechanicRobberState?: { locationTileIndex?: number };
+      gameLogState?: Record<
+        string,
+        {
+          text?: {
+            type: number;
+            playerColor: number;
+            pieceEnum?: number;
+            firstDice?: number;
+            secondDice?: number;
+          };
+        }
+      >;
+    };
+  };
+}
+
 export function parseColonistExport(json: ColonistSessionExport): ReplayTurn[] {
   if (!json.schema?.startsWith('colonist-session-collector/')) {
     throw new Error('Unsupported schema: Expected colonist-session-collector/v1');
   }
 
   // 1. Extract game channel messages (ID "130")
-  const messages: any[] = [];
+  const messages: ColonistGameMessage[] = [];
   for (const event of json.events || []) {
-    let dec = event.decoded;
+    let dec = event.decoded as Record<string, unknown> | undefined;
     if (dec && 'value' in dec && !('id' in dec)) {
-      dec = (dec as any).value;
+      dec = dec.value as Record<string, unknown> | undefined;
     }
     if (dec?.id === '130' && dec?.data) {
-      messages.push(dec.data);
+      messages.push(dec.data as ColonistGameMessage);
     }
   }
 
   const snapshotMsg = messages.find((m) => m.type === 4);
-  if (!snapshotMsg) {
+  if (!snapshotMsg || !snapshotMsg.payload) {
     throw new Error('No board snapshot found (type 4). Game recording incomplete.');
   }
 
@@ -42,11 +72,19 @@ export function parseColonistExport(json: ColonistSessionExport): ReplayTurn[] {
 
   // 2. Running state accumulated over diffs
   let currentTurnIndex = 0;
-  let activeRobberTile = gameState.mechanicRobberState?.locationTileIndex ?? 0;
+  let activeRobberTile = gameState?.mechanicRobberState?.locationTileIndex ?? 0;
   const roads: BoardPieceRoad[] = [];
   const buildings: BoardPieceBuilding[] = [];
 
   const turnHistory: ReplayTurn[] = [];
+
+  const initialPlayerSummaries: PlayerSummary[] = playOrder.map((c, idx) => ({
+    seatId: idx,
+    name: `Player ${idx + 1}`,
+    color: COLOR_MAP[c] || 'red',
+    victoryPoints: 2,
+    totalCards: 0,
+  }));
 
   // Turn 0: Setup state snapshot
   turnHistory.push({
@@ -57,13 +95,7 @@ export function parseColonistExport(json: ColonistSessionExport): ReplayTurn[] {
     robberHexId: activeRobberTile,
     roads: [],
     buildings: [],
-    playerSummaries: playOrder.map((c, idx) => ({
-      seatId: idx,
-      name: `Player ${idx + 1}`,
-      color: COLOR_MAP[c] || 'red',
-      victoryPoints: 2,
-      totalCards: 0,
-    })),
+    playerSummaries: initialPlayerSummaries,
   });
 
   // 3. Step through type 91 diffs
@@ -75,19 +107,17 @@ export function parseColonistExport(json: ColonistSessionExport): ReplayTurn[] {
     const newCorners: Array<{ owner: number; cornerId: number }> = [];
     const newCities: number[] = [];
     for (const [k, v] of Object.entries(mdiff.tileCornerStates || {})) {
-      const val = v as any;
-      if (val.buildingType === 2) {
+      if (v.buildingType === 2) {
         newCities.push(Number(k));
-      } else if (val.owner !== undefined && val.owner !== null) {
-        newCorners.push({ owner: val.owner, cornerId: Number(k) });
+      } else if (v.owner !== undefined && v.owner !== null) {
+        newCorners.push({ owner: v.owner, cornerId: Number(k) });
       }
     }
 
     const newEdges: Array<{ owner: number; edgeId: number }> = [];
     for (const [k, v] of Object.entries(mdiff.tileEdgeStates || {})) {
-      const val = v as any;
-      if (val.owner !== undefined && val.owner !== null) {
-        newEdges.push({ owner: val.owner, edgeId: Number(k) });
+      if (v.owner !== undefined && v.owner !== null) {
+        newEdges.push({ owner: v.owner, edgeId: Number(k) });
       }
     }
 
@@ -110,8 +140,16 @@ export function parseColonistExport(json: ColonistSessionExport): ReplayTurn[] {
       // Type 10: Dice Roll (Advances turn)
       if (lt === 10) {
         currentTurnIndex += 1;
-        const d1 = text.firstDice;
-        const d2 = text.secondDice;
+        const d1 = text.firstDice ?? 0;
+        const d2 = text.secondDice ?? 0;
+
+        const currentSummaries: PlayerSummary[] = playOrder.map((c, idx) => ({
+          seatId: idx,
+          name: `Player ${idx + 1}`,
+          color: COLOR_MAP[c] || 'red',
+          victoryPoints: 2,
+          totalCards: 0,
+        }));
 
         turnHistory.push({
           turnIndex: currentTurnIndex,
@@ -121,13 +159,7 @@ export function parseColonistExport(json: ColonistSessionExport): ReplayTurn[] {
           robberHexId: activeRobberTile,
           roads: roads.map((r) => ({ ...r })),
           buildings: buildings.map((b) => ({ ...b })),
-          playerSummaries: playOrder.map((c, idx) => ({
-            seatId: idx,
-            name: `Player ${idx + 1}`,
-            color: COLOR_MAP[c] || 'red',
-            victoryPoints: 2,
-            totalCards: 0,
-          })),
+          playerSummaries: currentSummaries,
         });
       }
 
