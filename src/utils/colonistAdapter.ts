@@ -119,8 +119,8 @@ export function parseColonistExport(json: ColonistSessionExport): ReplayTurn[] {
           diceRoll: [d1, d2],
           actionDescription: `${playerColor.toUpperCase()} rolled a ${d1 + d2} (${d1} + ${d2})`,
           robberHexId: activeRobberTile,
-          roads: [...roads],
-          buildings: [...buildings],
+          roads: roads.map((r) => ({ ...r })),
+          buildings: buildings.map((b) => ({ ...b })),
           playerSummaries: playOrder.map((c, idx) => ({
             seatId: idx,
             name: `Player ${idx + 1}`,
